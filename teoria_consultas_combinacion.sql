@@ -1,0 +1,61 @@
+--
+--CONSULTAS DE COMBINACIÓN
+--
+--ESTE TIPO DE CONSULTAS NOS PERMITEN COMBINAR CAMPO/S DE VARIAS TABLAS SIEMPRE
+--QUE TENGAN UNA RELACIÓN ENTRE SÍ.
+--UNO O MÁS CAMPOS DE COMBINCACIÓN RELACIONAL.
+--NO ES NECESARIO TENER UNA RESTRICCIÓN FÍSICA FOREIGN KEY, SOLO VIRTUAL.
+--TENEMOS DOS SINTAXIS: SIEMPRE DEBEMOS IGUALAR EL CAMPO/S DE COMBINACIÓN
+--SINTAXIS MALA Y MENOS EFICIENTE:
+--MOSTRAR EL APELLIDO Y LA LOCALIDAD DE LOS EMPLEADOS
+--ES BUENA PRAXIS (NO OBLIGATORIO SIEMPRE) PONER EL NOMBRE DE LA TABLA ANTES DE LOS CAMPOS
+--EN LAS CONSULTAS DE COMBINACIÓN
+select emp.apellido, dept.loc from emp, dept where emp.dept_no = dept.dept_no
+--SINTAXIS EFICIENTE Y ÓPTIMA
+--SELECT TABLA1.CAMPO1, TABLA2.CAMPO2 FROM TABLA1 INNER JOIN TABLA2
+--	ON TABLA1.CAMPOCOMBINACIÓN = TABLA2.CAMPOCOMBINACIÓN
+select emp.apellido, dept.loc from emp inner join dept on emp.dept_no = dept.dept_no
+--PODEMOS PONER ALIAS A LAS TABLAS
+--HERRAMIENTAS PARA EL PROGRAMADOR
+select e.apellido, d.loc from emp e inner join dept d on e.dept_no = d.dept_no
+--TENEMOS MÁS TIPOS DE JOIN:
+--INNER JOIN RECUPERA LOS DATOS DE LAS DOS TABLAS QUE COMBINAN ENTRE SÍ.
+--NORMALMENTE SOLAMENTE EXISTE UNA COMBINACIÓN HACIA UN LADO (TABLA)
+--SI TENEMOS CLIENTES Y PEDIDOS...
+--PODEMOS TENER UN CLIENTE SIN PEDIDOS??? SI
+--PODEMOS TENER UN PEDIDO SIN CLIENTES??? NO
+--LOS EMPLEADOS Y LOS DEPARTAMENTOS ESTÁN RELACIONADOS. PODEMOS TENER DEPARTAMENTOS SIN EMPLEADOS ASIGNADOS.
+--NO PODEMOS TENER EMPLEADOS SIN DEPARTAMENTO
+select * from dept
+--DEPARTAMENTOS DE EMPLEADOS
+select distinct dept_no from emp
+--TENEMOS UN DEPARTAMENTOS 40 PRODUCCIÓN SALAMANCA SIN EMPLEADOS
+--Y TENEMOS AL EMPLEADO TAJAMAR SIN DEPARTAMENTO (50)
+select e.apellido, d.loc from emp e inner join dept d on e.dept_no = d.dept_no
+--TENEMOS OPCIONES PARA RECUPERAR MÁS REGISTROS DE UNO DE LOS DOS LADOS.
+--POR EJEMPLO, NOS PERMITIRÍA RECUPERAR A LOS CLIENTES AUNQUE NO TUVIESEN PEDIDOS
+--SE UTILIZA O RIGHT O LEFT JOIN, DEPENDIENDO DEL LADO A FORZAR.
+--RECUPERA LOS DATOS DE LA TABLA DE LA DERECHA O DE LA IZQUIERDA AUNQUE NO COMBINEN
+--LEFT ANTES DEL JOIN - RIGHT DESPUÉS DEL JOIN
+select emp.apellido, dept.loc from EMP left join dept on emp.dept_no = dept.dept_no
+select emp.apellido, dept.loc from emp right join DEPT on emp.dept_no = dept.dept_no
+--MUY POCO UTILIZADO POR LO QUE HEMOS COMENTADO DE SOLO UNO DE LOS DATOS.
+--FULL JOIN QUE MUESTRA TODOS LOS REGISTROS QUE COMBINEN Y LOS QUE NO COMBINEN DE LOS DOS LADOS
+select emp.apellido, dept.loc from emp full join dept on emp.dept_no = dept.dept_no
+--CROSS JOIN RECUPERA EL PRODUCTO CARTESIANO. MUESTRA LOS RESULTADOS DE UNA TABLA CON TODAS LAS
+--POSIBILIDADES DE LA OTRA TABLA. NO LLEVA ON EN LA SINTAXIS
+select emp.apellido, dept.loc from emp cross join dept
+--PODEMOS HACER TANTAS COMBINACIONES COMO DESEEMOS. INCLUIREMOS UN JOIN POR CADA TABLA A COMBINAR.
+--MOSTRAR EL APELLIDO, NOMBRE DE HOSPITAL, DIRECCIÓN Y NOMBRE DE SALA DE LA PLANTILLA.
+select * from plantilla
+select * from hospital
+select * from sala
+select plantilla.apellido, hospital.nombre, hospital.direccion, sala.nombre AS sala from hospital inner join plantilla
+	on hospital.hospital_cod = plantilla.hospital_cod inner join sala on hospital.hospital_cod = sala.hospital_cod
+	and plantilla.sala_cod = sala.sala_cod
+--NO PODEMOS TENER DOS CAMPOS DE COLUMNAS QUE SE LLAMEN IGUAL
+--MOSTRAR EL NÚMERO DE PERSONAS QUE EXISTEN POR CADA NOMBRE DE DEPARTAMENTO.
+--INFORME CUÁNTAS PERSONAS HAY EN CADA DEPARTAMENTO (NOMBRE)
+select count(*) AS personas, dept.dnombre from emp inner join dept on emp.dept_no = dept.dept_no group by dept.dnombre
+select count(*) AS personas, dept.dnombre from emp right join dept on emp.dept_no = dept.dept_no group by dept.dnombre
+select count(emp.emp_no) AS personas, dept.dnombre from emp right join dept on emp.dept_no = dept.dept_no group by dept.dnombre

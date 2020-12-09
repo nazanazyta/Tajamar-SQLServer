@@ -1,0 +1,73 @@
+--
+--SUBCONSULTAS
+--
+--SON CONSULTAS EN LAS QUE NECESITAMOS EL RESULTADO DE OTRA CONSULTA PARA RECUPERAR LOS DATOS
+--LAS SUBCONSULTAS SE ANIDAN UNAS CON OTRAS Y NO ES NECESARIO EJECUTARLAS DE FORMA INDEPENDIENTE,
+--SON UN CONJUNTO
+--NO IMPORTA EL NIVEL DE SUBCONSULTAS, PODEMOS UTILIZAR TODAS LAS QUE NECESITEMOS.
+--INTENTAR EVITAR LAS SUBCONSULTAS EN SELECT PORQUE GENERAN BLOQUEOS.
+--
+--QUEREMOS MOSTRAR LOS DATOS DEL EMPLEADO QUE MÁS COBRE EN LA EMPRESA
+select max(salario) from emp
+--650000
+select * from emp where salario = 650000
+--SUBCONSULTA
+select * from emp where salario = (select max(salario) from emp)
+--SI LA SUBCONSULTA DEVUELVE MÁS DE UN VALOR SE UTILIZA EL OPERADOR IN
+--MOSTRAR LOS EMPLEADOS QUE TIENEN EL MISMO OFICIO QUE SALA.
+select * from emp where oficio = (select oficio from emp where apellido = 'sala')
+--MOSTRAR LOS EMPLEADOS QUE TIENEN EL MISMO OFICIO QUE SALA O JIMENEZ.
+select * from emp where oficio in (select oficio from emp where apellido = 'sala' or apellido = 'jimenez') order by oficio
+--
+--CONSULTAS CON UNION
+--PERMITEN UNIR DOS O MÁS CONSULTAS EN UN MISMO CURSOR.
+--LAS CONSULTAS NO TIENEN POR QUÉ TENER NADA QUE VER ENTRE SÍ.
+--TENEMOS QUE SEGUIR TRES REGLAS:
+--1) LA CONSULTA PRIMERA ES LA JEFA (ES QUIEN MANDA)
+--2) TODAS LAS CONSULTAS DEBEN TENER EL MISMO NÚMERO DE COLUMNAS (CAMPOS EN EL SELECT)
+--3) LAS COLUMNAS DEBEN TENER EL MISMO TIPO DE DATO
+--QUEREMOS MOSTRAR DATOS DE PERSONAS DE LAS TABLAS DE HOSPITAL. EMP Y DOCTOR
+select apellido, oficio AS trabajo from emp UNION select apellido, especialidad AS curro from doctor
+--UNION select dnombre, loc from dept
+--EL OPERADOR UNION QUITA REPETIDOS
+select apellido from emp union select apellido from emp
+--SI DESEAMOS MOSTRAR REPETIDOS DEBEMOS UTILIZAR UNION ALL
+select apellido from emp union all select apellido from emp
+--LAS CONSULTAS SON INDEPENDIENTES AUNQUE NOS MUESTRE EL RESULTADO CONJUNTO EN UN CURSOR
+--QUEREMOS MOSTRAR EL APELLIDO Y SALARIO DE LOS EMPLEADOS Y LA PLANTILLA QUE COBREN MÁS DE 260.000
+select apellido, salario, 'emp' as tabla from emp where salario > 260000
+	UNION select apellido, salario, 'plantilla' from plantilla where salario > 260000
+--
+--SELECT TO SELECT -> PARECIDAS A SUBCONSULTAS, PERO SON ÓPTIMAS
+--SE UTILIZAN PARA FILTRAR UN CONJUNTO DE RESULTADOS COMPUESTO (POR EJEMPLO, UN UNION)
+--EN REALIDAD ES UN SELECT SOBRE UNA CONSULTA
+select * from (select apellido, salario, 'emp' as tabla from emp
+	UNION select apellido, salario, 'plantilla' from plantilla) query where query.salario > 260000
+--
+--CONSULTAS A NIVEL DE FILA
+--EVALÚAN UN DATO DE LA TABLA Y REPRESENTAN OTRO. NUNCA CAMBIAN EL VALOR DE LA TABLA, SOLO DIBUJAN.
+--ÚTIL PARA REPRESENTAR CAMPOS CON FORMATO. ES COMO UN IF CON DATOS DE IGUALDAD
+--SINTAXIS:
+--SELECT CAMPO1, CAMPO2
+--	, CASE CAMPOAEVALUAR
+--		WHEN VALOR1 THEN RESULTADO1
+--		WHEN VALOR2 THEN RESULTADO2
+--		ELSE RESULTADOELSE
+--		END AS ALIAS
+--	FROM TABLA
+select apellido, funcion
+	, case t
+		when 'm' then 'mañana'
+		when 'n' then 'noche'
+		else 'tarde'
+		end as turno
+	, salario from plantilla
+--TENEMOS OTRA SINTAXIS CON 'CASE' DONDE NO EVALÚA LA IGUALDAD, PODEMOS UTILIZAR MÁS OPERADORES
+--MOSTRAMOS UNA DESCRIPCIÓN DEL SALARIO DE LA PLANTILLA
+select apellido, salario
+	, case 
+		when salario < 200000 then 'poquito'
+		when salario > 250000 then 'estupendo'
+		else 'sueldo medio'
+		end as descripcion
+	from plantilla
