@@ -43,6 +43,7 @@ select * from emp where fecha_alt not between '01/01/1980' and '31/12/1982'
 --o en Barcelona.
 select dnombre from dept where loc = 'madrid' or loc = 'barcelona'
 select dnombre from dept where loc in ('madrid', 'barcelona')
+select dnombre from DEPT where LOC like 'Madrid' or LOC like 'Barcelona'
 --
 --CONSULTAS DE SELECCIÓN II
 --
